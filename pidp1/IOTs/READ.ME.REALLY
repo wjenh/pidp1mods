@@ -1,0 +1,12 @@
+You can add a handler for any IOT that isn't built in by implementing one or two methods, see the sample IOT_57.c,
+Once you have your IOT_nn.c, just type 'make'. That's it Any IOT instruction that references device nn will cause your handler to be dynamically loaded and called.
+
+The main entrypoint is the iotHandler() method. It will be called twice for every IOT instruction executed.
+The first time is when the IOT pulse (emulating what the hardware did) is asserted, again when it goes low.
+
+If you have any special clenup to do, as the fclose() in the example, implement iotStop().
+It will be called whenever the pidp1 is halted.
+
+IMPORTAINT - once loaded, a handler stays loaded until the pidp1 emulator is shut down and restarted. So, if you change your handler, restart or it won't work properly.
+
+Finally, remember that this is just an emulation of the hardware. There are no acutal electrical start or continue pulses going to anything. So, the emulator will be blocked until your iotHandler() function returns.
