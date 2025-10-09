@@ -39,10 +39,10 @@ typedef struct
 static int stopped = 1;         // assume we are halted initially
 static IotEntry handles[64];
 
-static PDP1* localPdp1P;             // total hack, the break callback needs it.
+extern PDP1 *visiblePDP1P;      // from main.c
+extern void dynamicReq(PDP1 *pdp, int chan);
 
 void dynamicIotProcessBreak(int chan);
-static void doBreakReq(PDP1 *pdp, int chan);
 
 // Called from the emulator to try to invoke a dynamic IOT.
 // It is called twice for each IOT, once on the IOT start pulse rising edge, once on the falling edge.
@@ -106,7 +106,7 @@ char fname[128];
 void
 dynamicIotProcessBreak(int chan)
 {
-    doBreakReq(localPdp1P, chan);               // signal a break
+    dynamicReq(visiblePDP1P, chan);               // signal a break, convoluted because of various unshared bits
 }
 
 // Called when the emulator is started so IOTs that need to can clean up.
@@ -153,20 +153,4 @@ IotStopP stopP;
     }
 
     stopped = 1;
-}
-
-// Hack because there is no global ref and the break callback needs it
-void dynamicIotProcessorSetPDP1(PDP1 *pdpP)
-{
-    localPdp1P = pdpP;
-}
-
-// Duplicate of the code in pdp1.c, it's static there
-static void
-doBreakReq(PDP1 *pdp, int chan)
-{
-	if(pdp->sbs16)
-		pdp->b2 |= pdp->b1 & (1<<chan);
-	else
-		pdp->b2 = 1;
 }

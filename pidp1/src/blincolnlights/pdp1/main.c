@@ -21,11 +21,11 @@ Panel *getpanel(void);
 #define Edge(sw) (pdp->sw && !prev_##sw)
 
 int doaudio;
+PDP1 *visiblePDP1P;          // dynamic IOTS need this, but can't get it otherwise
 
 void
 emu(PDP1 *pdp, Panel *panel)
 {
-    dynamicIotProcessorSetPDP1(pdp);
 	pdp->panel = panel;
 
 	pwrclr(pdp);
@@ -280,6 +280,7 @@ int
 main(int argc, char *argv[])
 {
 	PDP1 pdp1, *pdp = &pdp1;
+    visiblePDP1P = pdp;
 	pthread_t th;
 	const char *host;
 	int port;

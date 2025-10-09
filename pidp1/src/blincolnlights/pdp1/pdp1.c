@@ -1341,6 +1341,13 @@ req(PDP1 *pdp, int chan)
 		pdp->b2 = 1;
 }
 
+// because req() is private, but dynamic IOT processing needs it
+void
+dynamicReq(PDP1 *pdp, int chan)
+{
+    req(pdp, chan);
+}
+
 void
 flushdpy(DispCon *d)
 {
