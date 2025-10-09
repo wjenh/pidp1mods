@@ -10,6 +10,12 @@
  * The handler is passed a pointer to the PDP structure which contains the entire state information of the emulator.
  * If the handler returns 0, then the IOT will be treated as an undefined IOT as if there was no handler.
  * Any other return value means the IOT was processed.
+ *
+ * An implemented IOT handler must implement an iotHandler() methood.
+ * It can optionally implement:
+ * void iotStart(void); - called when the emulator transitions to run state
+ * void iotStop(void); - called when the emulator transitions to halt state
+ *
  */
 
 #include <unistd.h>
@@ -19,16 +25,24 @@
 #include "pdp1.h"
 #include "dynamicIots.h"
 
+#include <stdio.h>
+
 typedef struct
 {
     int invalid;        // if 1, we tried to load already, nothing found
     void *dlHandleP;
     IotHandlerP handlerP;
+    IotStartP startP;
     IotStopP stopP;
 } IotEntry, *IotEntryP;
 
 static int stopped = 1;         // assume we are halted initially
 static IotEntry handles[64];
+
+static PDP1* localPdp1P;             // total hack, the break callback needs it.
+
+void dynamicIotProcessBreak(int chan);
+static void doBreakReq(PDP1 *pdp, int chan);
 
 // Called from the emulator to try to invoke a dynamic IOT.
 // It is called twice for each IOT, once on the IOT start pulse rising edge, once on the falling edge.
@@ -72,13 +86,50 @@ char fname[128];
             return(0);
         }
 
+        // Should be implemented, but if not, ignore
+        IotSeqBreakHandlerP breakP = (IotSeqBreakHandlerP)dlsym(entryP->dlHandleP, "_setBreakCallback");
+        if( breakP )
+        {
+            breakP(dynamicIotProcessBreak);         // set the callback in the handler
+        }
+
         // not required to be implemented
+        entryP->startP = (IotStartP)dlsym(entryP->dlHandleP, "iotStart");
         entryP->stopP = (IotStopP)dlsym(entryP->dlHandleP, "iotStop");
     }
 
     stopped = 0;
     status = entryP->handlerP(pdpP, pulse, completion);
     return( status );
+}
+
+void
+dynamicIotProcessBreak(int chan)
+{
+    doBreakReq(localPdp1P, chan);               // signal a break
+}
+
+// Called when the emulator is started so IOTs that need to can clean up.
+void
+dynamicIotProcessorStart(void)
+{
+int i;
+IotStartP startP;
+
+    if( !stopped )
+    {
+        return;             // already done
+    }
+
+    for( i = 0; i < 65; ++i )
+    {
+        if( (startP = handles[i].startP) )
+        {
+            startP();
+        }
+    }
+
+    stopped = 0;
 }
 
 // Called when the emulator is halted so IOTs that need to can clean up.
@@ -102,4 +153,20 @@ IotStopP stopP;
     }
 
     stopped = 1;
+}
+
+// Hack because there is no global ref and the break callback needs it
+void dynamicIotProcessorSetPDP1(PDP1 *pdpP)
+{
+    localPdp1P = pdpP;
+}
+
+// Duplicate of the code in pdp1.c, it's static there
+static void
+doBreakReq(PDP1 *pdp, int chan)
+{
+	if(pdp->sbs16)
+		pdp->b2 |= pdp->b1 & (1<<chan);
+	else
+		pdp->b2 = 1;
 }

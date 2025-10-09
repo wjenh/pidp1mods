@@ -25,6 +25,7 @@ int doaudio;
 void
 emu(PDP1 *pdp, Panel *panel)
 {
+    dynamicIotProcessorSetPDP1(pdp);
 	pdp->panel = panel;
 
 	pwrclr(pdp);
@@ -77,8 +78,10 @@ emu(PDP1 *pdp, Panel *panel)
 			if(pdp->run) {
                 if(doaudio)
                     svc_audio(pdp);
+               dynamicIotProcessorStart();
                cycle(pdp);
             } else {
+               dynamicIotProcessorStop();
                updatelights(pdp, panel);
 			}
 			throttle(pdp);
@@ -102,7 +105,11 @@ emu(PDP1 *pdp, Panel *panel)
 		agedisplay(pdp, 1);
 		cli(pdp);
 
-        if( !pdp->run_enable )                  // we transitioned to halt, stop dynamic IOTs
+        if( pdp->run_enable )                  // we transitioned between run states, notify dynamic IOTs
+        {
+            dynamicIotProcessorStart();
+        }
+        else
         {
             dynamicIotProcessorStop();
         }

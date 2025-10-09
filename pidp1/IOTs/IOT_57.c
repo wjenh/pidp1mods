@@ -19,8 +19,8 @@ iotHandler(PDP1 *pdp1P, int pulse, int completion)
     }
     else
     {
-        pdp1P->io = pdp1P->tw;       // copy the test word settings into the io register
-        fprintf(fP,"IOT 57 called, pulse 0.\n");
+        fprintf(fP,"IOT 57 called, pulse 0, breaking.\n");
+        //initiateBreak(0);     currently broken, waiting on input from Angelo
     }
 
     return(1);
