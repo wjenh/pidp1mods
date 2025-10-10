@@ -4,6 +4,8 @@
 #include <fcntl.h>
 #include "dynamicIots.h"
 
+#include <stdio.h>
+
 // PDP-1D but probably also on some C's?
 #define LAILIA
 

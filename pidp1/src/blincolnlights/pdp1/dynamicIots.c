@@ -106,7 +106,10 @@ char fname[128];
 void
 dynamicIotProcessBreak(int chan)
 {
-    dynamicReq(visiblePDP1P, chan);               // signal a break, convoluted because of various unshared bits
+    if( chan > 0)
+    {
+        dynamicReq(visiblePDP1P, chan);               // signal a break, convoluted because of various unshared bits
+    }
 }
 
 // Called when the emulator is started so IOTs that need to can clean up.

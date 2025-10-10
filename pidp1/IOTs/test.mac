@@ -1,0 +1,28 @@
+TEST OF DYNAMIC IOT
+0/
+    0
+    0
+    0
+    jmp ih
+    0
+    0
+    0
+    jmp ih2
+
+100/
+    esm
+    iot 057
+    iot 157
+rt, hlt
+
+120/
+ih, lio (707070
+    lac (123456
+    jmp i 1 
+
+ih2, lio (123456
+    lac (707070
+    jmp i 5 
+
+constants
+start 100

@@ -7,6 +7,11 @@ The first time is when the IOT pulse (emulating what the hardware did) is assert
 If you have any special clenup to do, as the fclose() in the example, implement iotStop().
 It will be called whenever the pidp1 is halted.
 
+If the 16 channel break system is installed, the channel numbers are 0-15.
+If the standard one channel sbs is installed, any channel number is ignored and will always be treated as 0.
+
+NOTE - as of this writing the 16 channel system is not enabled in the emulator, nor is there any way to do so.
+
 IMPORTAINT - once loaded, a handler stays loaded until the pidp1 emulator is shut down and restarted. So, if you change your handler, restart or it won't work properly.
 
 Finally, remember that this is just an emulation of the hardware. There are no acutal electrical start or continue pulses going to anything. So, the emulator will be blocked until your iotHandler() function returns.

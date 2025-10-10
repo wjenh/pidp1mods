@@ -59,6 +59,8 @@ emu(PDP1 *pdp, Panel *panel)
 			   Edge(examine_sw) || Edge(deposit_sw)) {
 				spec(pdp);
 				cycle(pdp);
+                if( Edge(start_sw) || Edge(continue_sw) )
+                    dynamicIotProcessorStart();
 			}
 			if(Edge(stop_sw)) pdp->run_enable = 0;
 			if(Edge(readin_sw)) start_readin(pdp);
@@ -78,7 +80,7 @@ emu(PDP1 *pdp, Panel *panel)
 			if(pdp->run) {
                 if(doaudio)
                     svc_audio(pdp);
-               dynamicIotProcessorStart();
+               //dynamicIotProcessorStart();
                cycle(pdp);
             } else {
                dynamicIotProcessorStop();
@@ -105,6 +107,7 @@ emu(PDP1 *pdp, Panel *panel)
 		agedisplay(pdp, 1);
 		cli(pdp);
 
+        /*
         if( pdp->run_enable )                  // we transitioned between run states, notify dynamic IOTs
         {
             dynamicIotProcessorStart();
@@ -113,6 +116,7 @@ emu(PDP1 *pdp, Panel *panel)
         {
             dynamicIotProcessorStop();
         }
+        */
 	}
 }
 
